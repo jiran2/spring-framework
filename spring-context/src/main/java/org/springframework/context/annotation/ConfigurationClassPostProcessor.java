@@ -292,7 +292,13 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
-			//判断是否是Configuration类
+			//      判断是否是Configuration类 bd.CONFIGURATION_CLASS_ATTRIBUTE = full
+
+			//bd.CONFIGURATION_CLASS_ATTRIBUTE = lite
+			//      candidateIndicators.add(Component.class.getName());
+			//		candidateIndicators.add(ComponentScan.class.getName());
+			//		candidateIndicators.add(Import.class.getName());
+			//		candidateIndicators.add(ImportResource.class.getName());
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
@@ -303,6 +309,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			return;
 		}
 
+		//忽略
 		// Sort by previously determined @Order value, if applicable
 		configCandidates.sort((bd1, bd2) -> {
 			int i1 = ConfigurationClassUtils.getOrder(bd1.getBeanDefinition());

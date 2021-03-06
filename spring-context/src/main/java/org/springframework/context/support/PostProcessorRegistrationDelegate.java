@@ -64,17 +64,19 @@ final class PostProcessorRegistrationDelegate {
 
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+
+			//BeanDefinitionRegistryPostProcessor是BeanFactoryPostProcessor实现，分开处理
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
+			//忽略，因为基本是空的
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
 					registryProcessors.add(registryProcessor);
-				}
-				else {
+				} else {
 					regularPostProcessors.add(postProcessor);
 				}
 			}
@@ -83,9 +85,12 @@ final class PostProcessorRegistrationDelegate {
 			// uninitialized to let the bean factory post-processors apply to them!
 			// Separate between BeanDefinitionRegistryPostProcessors that implement
 			// PriorityOrdered, Ordered, and the rest.
+			//放Spring内部自己定义的BeanDefinitionRegistryPostProcessor
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			//BeanDefinitionRegistryPostProcessor 等于 BeanFactoryPostProcessor
+			//根据bean的类型获取bean的名字
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
@@ -95,9 +100,11 @@ final class PostProcessorRegistrationDelegate {
 				}
 			}
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
+
+			//合并自己定义和Spring定义的BeanDefinitionRegistryPostProcessor
 			registryProcessors.addAll(currentRegistryProcessors);
 
-			//
+			//方法调用
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry, beanFactory.getApplicationStartup());
 			currentRegistryProcessors.clear();
 
@@ -135,9 +142,7 @@ final class PostProcessorRegistrationDelegate {
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
-		}
-
-		else {
+		} else {
 			// Invoke factory processors registered with the context instance.
 			invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
 		}
@@ -155,14 +160,11 @@ final class PostProcessorRegistrationDelegate {
 		for (String ppName : postProcessorNames) {
 			if (processedBeans.contains(ppName)) {
 				// skip - already processed in first phase above
-			}
-			else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+			} else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
 				priorityOrderedPostProcessors.add(beanFactory.getBean(ppName, BeanFactoryPostProcessor.class));
-			}
-			else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+			} else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
 				orderedPostProcessorNames.add(ppName);
-			}
-			else {
+			} else {
 				nonOrderedPostProcessorNames.add(ppName);
 			}
 		}
@@ -215,11 +217,9 @@ final class PostProcessorRegistrationDelegate {
 				if (pp instanceof MergedBeanDefinitionPostProcessor) {
 					internalPostProcessors.add(pp);
 				}
-			}
-			else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+			} else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
 				orderedPostProcessorNames.add(ppName);
-			}
-			else {
+			} else {
 				nonOrderedPostProcessorNames.add(ppName);
 			}
 		}
@@ -313,8 +313,7 @@ final class PostProcessorRegistrationDelegate {
 		if (beanFactory instanceof AbstractBeanFactory) {
 			// Bulk addition is more efficient against our CopyOnWriteArrayList there
 			((AbstractBeanFactory) beanFactory).addBeanPostProcessors(postProcessors);
-		}
-		else {
+		} else {
 			for (BeanPostProcessor postProcessor : postProcessors) {
 				beanFactory.addBeanPostProcessor(postProcessor);
 			}
