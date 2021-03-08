@@ -132,6 +132,7 @@ abstract class ConfigurationClassUtils {
 		//		candidateIndicators.add(Import.class.getName());
 		//		candidateIndicators.add(ImportResource.class.getName());
 		else if (config != null || isConfigurationCandidate(metadata)) {
+			//设置为lite
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		} else {
 			return false;

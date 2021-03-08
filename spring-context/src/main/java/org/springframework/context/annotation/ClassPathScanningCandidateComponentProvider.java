@@ -311,6 +311,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		if (this.componentsIndex != null && indexSupportsIncludeFilters()) {
 			return addCandidateComponentsFromIndex(this.componentsIndex, basePackage);
 		}
+		//走这
 		else {
 			return scanCandidateComponents(basePackage);
 		}
